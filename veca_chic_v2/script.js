@@ -1,38 +1,75 @@
-// 1. Generación de 20+ productos con IMÁGENES REALES
-const categorias = ["Arquitectura", "Redes", "Historia", "Sistemas Op.", "Bases de Datos"];
+const categorias = ["Nueva temporada", "Clásicos", "Accesorios", "Casual", "Elegante"];
 const items = ["Mochila", "Blusa", "Bolso", "Cartera", "Sudadera"];
 
-// Asegúrate de tener al menos 4 imágenes en tu carpeta /img
-// Por ejemplo: prod1.webp, prod2.webp, prod3.webp, prod4.webp
-const fotos = ["prod1.webp", "prod2.webp", "prod3.webp", "prod4.webp"]; 
+// Una imagen por casilla (24): bols → comb → cross
+const imagenesProductos = [
+    ...Array.from({ length: 11 }, (_, k) => `bols_${k + 1}.jpg`),
+    ...Array.from({ length: 7 }, (_, k) => `comb_${k + 1}.jpg`),
+    ...Array.from({ length: 6 }, (_, k) => `cross_${k + 1}.jpg`),
+];
 
 const grid = document.getElementById('grid-productos');
+const btnCarrito = document.getElementById('btn-carrito');
 
-for(let i=1; i<=24; i++) {
+/** @type {{ id: number, nombre: string, precio: number, foto: string, qty: number }[]} */
+let carrito = [];
+
+function precioProducto(i) {
+    return i * 5 + 20;
+}
+
+function actualizarBolsa() {
+    const total = carrito.reduce((sum, p) => sum + p.qty, 0);
+    btnCarrito.textContent = `Bolsa (${total})`;
+}
+
+function agregarAlCarrito(id, nombre, precio, foto) {
+    const existente = carrito.find((p) => p.id === id);
+    if (existente) existente.qty += 1;
+    else carrito.push({ id, nombre, precio, foto, qty: 1 });
+    actualizarBolsa();
+}
+
+for (let i = 1; i <= 24; i++) {
     const cat = categorias[i % categorias.length];
     const item = items[i % items.length];
-    const foto = fotos[i % fotos.length]; // Elige una foto secuencialmente
-    
+    const foto = imagenesProductos[i - 1];
+    const nombre = `${item} Modelo ${i * 10}`;
+    const precio = precioProducto(i);
+
     const card = document.createElement('div');
     card.className = "product-card bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-lg transition-all group";
-    
-    // CAMBIO CLAVE: He reemplazado el emoji por una etiqueta <img />
+    card.dataset.productId = String(i);
+
     card.innerHTML = `
-        <div class="h-60 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
-            <img src="img/${foto}" alt="${item}" class="object-cover h-full w-full group-hover:scale-105 transition duration-500" />
+        <div class="h-60 rounded-lg mb-4 flex items-center justify-center overflow-hidden bg-corinto-50">
+            <img src="public/${foto}" alt="${nombre}" class="object-cover h-full w-full group-hover:scale-105 transition duration-500" loading="lazy" />
         </div>
-        <span class="text-[10px] font-black bg-pink-100 text-pink-600 px-2 py-0.5 rounded uppercase">${cat}</span>
-        <h4 class="font-bold text-slate-800 mt-2">${item} Modelo ${i*10}</h4>
-        <p class="text-xs text-slate-400 mb-4 uppercase tracking-tighter">Tech-Edition Pack</p>
+        <span class="text-[10px] font-black bg-corinto-50 text-corinto px-2 py-0.5 rounded uppercase">${cat}</span>
+        <h4 class="font-bold text-slate-800 mt-2">${nombre}</h4>
+        <p class="text-xs text-slate-400 mb-4 uppercase tracking-tighter">Colección Veca</p>
         <div class="flex justify-between items-center">
-            <span class="font-bold text-lg">$${(i*5 + 20).toFixed(2)}</span>
-            <button class="bg-slate-900 text-white px-3 py-1 rounded text-xs hover:bg-pink-600">Añadir</button>
+            <span class="font-bold text-lg">Q${precio.toFixed(2)}</span>
+            <button type="button" class="btn-anadir bg-corinto-900 text-white px-3 py-1 rounded text-xs hover:bg-corinto">Añadir</button>
         </div>
     `;
     grid.appendChild(card);
 }
 
-// 2. GSAP Animaciones (Se mantienen igual, ahora aplicadas a imágenes)
+grid.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-anadir');
+    if (!btn) return;
+    const card = btn.closest('.product-card');
+    if (!card) return;
+    const id = Number(card.dataset.productId, 10);
+    const nombre = card.querySelector('h4')?.textContent?.trim() ?? 'Producto';
+    const precioText = card.querySelector('.font-bold.text-lg')?.textContent ?? '';
+    const precio = parseFloat(precioText.replace(/^Q/, '')) || precioProducto(id);
+    const img = card.querySelector('img');
+    const foto = img?.getAttribute('src')?.replace(/^public\//, '') ?? '';
+    agregarAlCarrito(id, nombre, precio, foto);
+});
+
 gsap.registerPlugin(ScrollTrigger);
 
 gsap.from("#hero-title", { duration: 1.2, y: 100, opacity: 0, ease: "expo.out" });
@@ -49,7 +86,6 @@ gsap.to(".product-card", {
     }
 });
 
-// 3. Chatbot Lógica Mapa (Se mantiene igual)
 const btnChat = document.getElementById('btn-chat');
 const winChat = document.getElementById('window-chat');
 const box = document.getElementById('chat-box');
@@ -61,21 +97,21 @@ function pasoChat(n) {
     let resp = "";
     let next = "";
 
-    if(n === 1) {
-        resp = "En Hardware tenemos mochilas con compartimentos térmicos tipo disipador. ¿Te interesa el color gris metal?";
+    if (n === 1) {
+        resp = "Tenemos blusas, mochilas y bolsos en la colección actual. ¿Te muestro los más vendidos?";
         next = `<button onclick="pasoChat(0)" class="btn-op">Sí, ver modelos</button>
                 <button onclick="pasoChat(0)" class="btn-op">Regresar</button>`;
-    } else if(n === 2) {
-        resp = "Nuestros bolsos de Red usan correas de nylon trenzado Cat6. ¿Buscas durabilidad?";
-        next = `<button onclick="pasoChat(0)" class="btn-op">Ver catálogo de Redes</button>`;
-    } else if(n === 3) {
-        resp = "La línea Historia usa estampados de la Máquina de Turing. ¿Es para un regalo?";
-        next = `<button onclick="pasoChat(0)" class="btn-op">Ver línea Vintage</button>`;
+    } else if (n === 2) {
+        resp = "Las tallas van de XS a XL. Envíos a todo el país en 3–5 días hábiles.";
+        next = `<button onclick="pasoChat(0)" class="btn-op">Ver guía de tallas</button>`;
+    } else if (n === 3) {
+        resp = "Esta semana hay 15% en accesorios. ¿Quieres el código de descuento?";
+        next = `<button onclick="pasoChat(0)" class="btn-op">Sí, por favor</button>`;
     } else {
         location.reload();
     }
 
-    box.innerHTML += `<div class="bg-pink-600 text-white p-2 rounded-lg ml-10 text-right text-xs">Información sobre opción ${n}</div>`;
+    box.innerHTML += `<div class="bg-corinto text-white p-2 rounded-lg ml-10 text-right text-xs">Consulta opción ${n}</div>`;
     setTimeout(() => {
         box.innerHTML += `<div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">${resp}</div>`;
         opts.innerHTML = next;

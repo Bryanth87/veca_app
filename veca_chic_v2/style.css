@@ -1,0 +1,27 @@
+:root {
+    --corinto: #6B1B2A;
+    --corinto-dark: #4A121C;
+    --corinto-light: #9A3A4D;
+    --corinto-muted: #F5EBED;
+}
+
+.product-card {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.btn-op {
+    width: 100%;
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+    background: white;
+    font-size: 0.75rem;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-op:hover {
+    background: var(--corinto-muted);
+    border-color: var(--corinto-light);
+}
