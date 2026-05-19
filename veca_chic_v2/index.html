@@ -87,6 +87,31 @@
         </div>
     </div>
 
+    <!-- Panel bolsa / checkout -->
+    <div id="overlay-carrito" class="fixed inset-0 z-[60] hidden flex justify-end" aria-hidden="true">
+        <button type="button" id="backdrop-carrito" class="absolute inset-0 bg-slate-900/50 backdrop-blur-[2px]" aria-label="Cerrar bolsa"></button>
+        <aside class="relative z-10 flex h-full w-full max-w-md shrink-0 flex-col bg-white shadow-2xl" role="dialog" aria-labelledby="titulo-carrito">
+            <div class="flex items-center justify-between border-b border-corinto-100 px-5 py-4">
+                <h2 id="titulo-carrito" class="text-lg font-bold text-corinto-900">Tu bolsa</h2>
+                <button type="button" id="btn-cerrar-carrito" class="rounded-full p-2 text-slate-500 hover:bg-corinto-50 hover:text-corinto-700" aria-label="Cerrar">✕</button>
+            </div>
+            <div id="lista-carrito" class="flex-1 overflow-y-auto p-4"></div>
+            <div class="border-t border-corinto-100 bg-slate-50 p-5 space-y-4">
+                <div class="flex justify-between text-sm text-slate-600">
+                    <span>Artículos</span>
+                    <span id="carrito-cantidad-resumen">0</span>
+                </div>
+                <div class="flex justify-between text-lg font-bold text-slate-900">
+                    <span>Total</span>
+                    <span id="carrito-total">Q0.00</span>
+                </div>
+                <button type="button" id="btn-comprar" class="w-full rounded-xl bg-corinto-900 py-3.5 text-center text-sm font-bold uppercase tracking-wide text-white shadow-lg transition hover:bg-corinto disabled:cursor-not-allowed disabled:opacity-50">
+                    Comprar
+                </button>
+            </div>
+        </aside>
+    </div>
+
     <footer class="py-10 text-center text-slate-400 text-xs border-t border-corinto-100">
         © Veca — Moda que amarás
     </footer>

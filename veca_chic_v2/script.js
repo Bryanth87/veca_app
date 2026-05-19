@@ -10,6 +10,13 @@ const imagenesProductos = [
 
 const grid = document.getElementById('grid-productos');
 const btnCarrito = document.getElementById('btn-carrito');
+const overlayCarrito = document.getElementById('overlay-carrito');
+const backdropCarrito = document.getElementById('backdrop-carrito');
+const btnCerrarCarrito = document.getElementById('btn-cerrar-carrito');
+const listaCarrito = document.getElementById('lista-carrito');
+const carritoTotalEl = document.getElementById('carrito-total');
+const carritoCantidadResumen = document.getElementById('carrito-cantidad-resumen');
+const btnComprar = document.getElementById('btn-comprar');
 
 /** @type {{ id: number, nombre: string, precio: number, foto: string, qty: number }[]} */
 let carrito = [];
@@ -18,9 +25,77 @@ function precioProducto(i) {
     return i * 5 + 20;
 }
 
+function abrirCarrito() {
+    overlayCarrito.classList.remove('hidden');
+    overlayCarrito.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('overflow-hidden');
+    renderCarrito();
+}
+
+function cerrarCarrito() {
+    overlayCarrito.classList.add('hidden');
+    overlayCarrito.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('overflow-hidden');
+}
+
+function renderCarrito() {
+    const unidades = carrito.reduce((sum, p) => sum + p.qty, 0);
+    const totalQ = carrito.reduce((sum, p) => sum + p.precio * p.qty, 0);
+
+    if (carritoCantidadResumen) carritoCantidadResumen.textContent = String(unidades);
+    if (carritoTotalEl) carritoTotalEl.textContent = `Q${totalQ.toFixed(2)}`;
+    if (btnComprar) btnComprar.disabled = carrito.length === 0;
+
+    if (!listaCarrito) return;
+
+    if (carrito.length === 0) {
+        listaCarrito.innerHTML = `
+            <p class="rounded-xl border border-dashed border-corinto-200 bg-corinto-50/50 px-4 py-10 text-center text-sm text-slate-500">
+                Aún no hay productos. Elige algo en la colección y pulsa <strong class="text-corinto-700">Añadir</strong>.
+            </p>`;
+        return;
+    }
+
+    listaCarrito.innerHTML = carrito
+        .map(
+            (p) => `
+        <div class="mb-3 flex gap-3 rounded-xl border border-slate-100 bg-white p-3 shadow-sm" data-cart-id="${p.id}">
+            <img src="public/${p.foto}" alt="" class="h-20 w-20 shrink-0 rounded-lg object-cover bg-corinto-50" />
+            <div class="min-w-0 flex-1">
+                <p class="font-semibold text-slate-800 leading-snug">${p.nombre}</p>
+                <p class="mt-1 text-sm text-slate-500">Q${p.precio.toFixed(2)} c/u</p>
+                <div class="mt-2 flex items-center gap-2">
+                    <button type="button" class="carrito-menos flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-lg leading-none hover:bg-corinto-50" aria-label="Quitar una">−</button>
+                    <span class="min-w-[2rem] text-center text-sm font-bold">${p.qty}</span>
+                    <button type="button" class="carrito-mas flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-lg leading-none hover:bg-corinto-50" aria-label="Añadir una">+</button>
+                </div>
+            </div>
+            <div class="flex shrink-0 flex-col items-end justify-between">
+                <p class="font-bold text-corinto-900">Q${(p.precio * p.qty).toFixed(2)}</p>
+                <button type="button" class="carrito-eliminar text-xs font-medium text-red-600 underline-offset-2 hover:underline">Quitar</button>
+            </div>
+        </div>`
+        )
+        .join('');
+}
+
+function cambiarCantidadCarrito(id, delta) {
+    const p = carrito.find((x) => x.id === id);
+    if (!p) return;
+    p.qty += delta;
+    if (p.qty <= 0) carrito = carrito.filter((x) => x.id !== id);
+    actualizarBolsa();
+}
+
+function eliminarLineaCarrito(id) {
+    carrito = carrito.filter((x) => x.id !== id);
+    actualizarBolsa();
+}
+
 function actualizarBolsa() {
     const total = carrito.reduce((sum, p) => sum + p.qty, 0);
     btnCarrito.textContent = `Bolsa (${total})`;
+    renderCarrito();
 }
 
 function agregarAlCarrito(id, nombre, precio, foto) {
@@ -29,6 +104,34 @@ function agregarAlCarrito(id, nombre, precio, foto) {
     else carrito.push({ id, nombre, precio, foto, qty: 1 });
     actualizarBolsa();
 }
+
+btnCarrito.addEventListener('click', () => abrirCarrito());
+backdropCarrito.addEventListener('click', () => cerrarCarrito());
+btnCerrarCarrito.addEventListener('click', () => cerrarCarrito());
+
+listaCarrito.addEventListener('click', (e) => {
+    const row = e.target.closest('[data-cart-id]');
+    if (!row) return;
+    const id = Number(row.dataset.cartId, 10);
+    if (e.target.closest('.carrito-menos')) cambiarCantidadCarrito(id, -1);
+    else if (e.target.closest('.carrito-mas')) cambiarCantidadCarrito(id, 1);
+    else if (e.target.closest('.carrito-eliminar')) eliminarLineaCarrito(id);
+});
+
+btnComprar.addEventListener('click', () => {
+    if (carrito.length === 0) return;
+    const totalQ = carrito.reduce((sum, p) => sum + p.precio * p.qty, 0);
+    alert(
+        `¡Gracias por tu compra!\n\nTotal: Q${totalQ.toFixed(2)}\n\nTe contactaremos pronto para confirmar el envío y el pago.`
+    );
+    carrito = [];
+    actualizarBolsa();
+    cerrarCarrito();
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlayCarrito && !overlayCarrito.classList.contains('hidden')) cerrarCarrito();
+});
 
 for (let i = 1; i <= 24; i++) {
     const cat = categorias[i % categorias.length];
