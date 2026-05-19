@@ -60,7 +60,7 @@ function renderCarrito() {
         .map(
             (p) => `
         <div class="mb-3 flex gap-3 rounded-xl border border-slate-100 bg-white p-3 shadow-sm" data-cart-id="${p.id}">
-            <img src="public/${p.foto}" alt="" class="h-20 w-20 shrink-0 rounded-lg object-cover bg-corinto-50" />
+            <img src="assets/${p.foto}" alt="" class="h-20 w-20 shrink-0 rounded-lg object-cover bg-corinto-50" />
             <div class="min-w-0 flex-1">
                 <p class="font-semibold text-slate-800 leading-snug">${p.nombre}</p>
                 <p class="mt-1 text-sm text-slate-500">Q${p.precio.toFixed(2)} c/u</p>
@@ -146,7 +146,7 @@ for (let i = 1; i <= 24; i++) {
 
     card.innerHTML = `
         <div class="h-60 rounded-lg mb-4 flex items-center justify-center overflow-hidden bg-corinto-50">
-            <img src="public/${foto}" alt="${nombre}" class="object-cover h-full w-full group-hover:scale-105 transition duration-500" loading="lazy" />
+            <img src="assets/${foto}" alt="${nombre}" class="object-cover h-full w-full group-hover:scale-105 transition duration-500" loading="lazy" />
         </div>
         <span class="text-[10px] font-black bg-corinto-50 text-corinto px-2 py-0.5 rounded uppercase">${cat}</span>
         <h4 class="font-bold text-slate-800 mt-2">${nombre}</h4>
@@ -169,7 +169,7 @@ grid.addEventListener('click', (e) => {
     const precioText = card.querySelector('.font-bold.text-lg')?.textContent ?? '';
     const precio = parseFloat(precioText.replace(/^Q/, '')) || precioProducto(id);
     const img = card.querySelector('img');
-    const foto = img?.getAttribute('src')?.replace(/^public\//, '') ?? '';
+    const foto = img?.getAttribute('src')?.replace(/^assets\//, '') ?? '';
     agregarAlCarrito(id, nombre, precio, foto);
 });
 
