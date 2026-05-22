@@ -1,5 +1,30 @@
-const categorias = ["Nueva temporada", "Clásicos", "Accesorios", "Casual", "Elegante"];
-const items = ["Mochila", "Bolso", "Cartera", "Bandolera", "Rinonera"];
+const CATEGORIAS_VECA = {
+    crossbody: {
+        label: 'Crossbody',
+        prefijoFoto: 'cross_',
+        palabras: ['crossbody', 'cross body', 'cross', 'cruzada', 'bandolera'],
+    },
+    'combo-mochila': {
+        label: 'Combo mochila y lonchera',
+        prefijoFoto: 'comb_',
+        palabras: [
+            'combo mochila y lonchera',
+            'combo mochila',
+            'mochila y lonchera',
+            'mochila lonchera',
+            'lonchera',
+            'mochila',
+            'mochilas',
+        ],
+    },
+    'combo-carteras': {
+        label: 'Combo carteras',
+        prefijoFoto: 'bols_',
+        palabras: ['combo carteras', 'combo cartera', 'carteras', 'cartera', 'bolsas', 'bolsa'],
+    },
+};
+
+const ORDEN_DETECCION_CATEGORIA = ['combo-mochila', 'combo-carteras', 'crossbody'];
 
 function normalizarTexto(texto) {
     return texto
@@ -9,12 +34,28 @@ function normalizarTexto(texto) {
         .trim();
 }
 
-// Una imagen por casilla (24): bols → comb → cross
+// bols_ = Combo carteras · comb_ = Combo mochila y lonchera · cross_ = Crossbody
 const imagenesProductos = [
     ...Array.from({ length: 11 }, (_, k) => `bols_${k + 1}.jpg`),
     ...Array.from({ length: 7 }, (_, k) => `comb_${k + 1}.jpg`),
     ...Array.from({ length: 6 }, (_, k) => `cross_${k + 1}.jpg`),
 ];
+
+function tipoDesdeFoto(foto) {
+    if (foto.startsWith('bols_')) return 'combo-carteras';
+    if (foto.startsWith('comb_')) return 'combo-mochila';
+    if (foto.startsWith('cross_')) return 'crossbody';
+    return '';
+}
+
+function labelCategoria(slug) {
+    return CATEGORIAS_VECA[slug]?.label ?? slug;
+}
+
+function numeroDesdeFoto(foto) {
+    const m = foto.match(/_(\d+)\./);
+    return m ? m[1] : '';
+}
 
 const grid = document.getElementById('grid-productos');
 const btnCarrito = document.getElementById('btn-carrito');
@@ -141,24 +182,25 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && overlayCarrito && !overlayCarrito.classList.contains('hidden')) cerrarCarrito();
 });
 
-for (let i = 1; i <= 24; i++) {
-    const cat = categorias[i % categorias.length];
-    const item = items[i % items.length];
-    const foto = imagenesProductos[i - 1];
-    const nombre = `${item} Modelo ${i * 10}`;
+imagenesProductos.forEach((foto, idx) => {
+    const i = idx + 1;
+    const tipo = tipoDesdeFoto(foto);
+    const etiqueta = labelCategoria(tipo);
+    const num = numeroDesdeFoto(foto);
+    const nombre = `${etiqueta} ${num}`;
     const precio = precioProducto(i);
 
     const card = document.createElement('div');
-    card.className = "product-card bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-lg transition-all group";
+    card.className = 'product-card bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-lg transition-all group';
     card.dataset.productId = String(i);
-    card.dataset.tipo = normalizarTexto(item);
+    card.dataset.tipo = tipo;
 
     card.innerHTML = `
         <div class="h-60 rounded-lg mb-4 flex items-center justify-center overflow-hidden bg-corinto-50">
             <img src="assets/${foto}" alt="${nombre}" class="object-cover h-full w-full group-hover:scale-105 transition duration-500" loading="lazy" />
         </div>
-        <span class="text-[10px] font-black bg-corinto-50 text-corinto px-2 py-0.5 rounded uppercase">${cat}</span>
-        <h4 class="font-bold text-slate-800 mt-2">${nombre}</h4>
+        <span class="text-[10px] font-black bg-corinto-50 text-corinto px-2 py-0.5 rounded uppercase leading-tight">${etiqueta}</span>
+        <h4 class="font-bold text-slate-800 mt-2 leading-snug">${nombre}</h4>
         <p class="text-xs text-slate-400 mb-4 uppercase tracking-tighter">Colección Veca</p>
         <div class="flex justify-between items-center">
             <span class="font-bold text-lg">Q${precio.toFixed(2)}</span>
@@ -166,7 +208,7 @@ for (let i = 1; i <= 24; i++) {
         </div>
     `;
     grid.appendChild(card);
-}
+});
 
 grid.addEventListener('click', (e) => {
     const btn = e.target.closest('.btn-anadir');
@@ -208,13 +250,9 @@ const chatOpts = document.getElementById('opciones-chat');
 const chatForm = document.getElementById('chat-form');
 const chatInput = document.getElementById('chat-input');
 
-const TIPOS_PRODUCTO = {
-    mochila: ['mochila', 'mochilas'],
-    bolso: ['bolso', 'bolsos', 'bolsa', 'bolsas'],
-    cartera: ['cartera', 'carteras', 'monedero'],
-    bandolera: ['bandolera', 'bandoleras'],
-    rinonera: ['rinonera', 'riñonera', 'riñoneras', 'cinturon', 'cinturón'],
-};
+const TIPOS_PRODUCTO = Object.fromEntries(
+    Object.entries(CATEGORIAS_VECA).map(([slug, cat]) => [slug, cat.palabras])
+);
 
 const CONTACTO_VECA = {
     telefono: '+502 5512 3847',
@@ -348,8 +386,9 @@ function filtrarProductos(tipo) {
 
 function detectarTipoProducto(texto) {
     const t = normalizarTexto(texto);
-    for (const [tipo, palabras] of Object.entries(TIPOS_PRODUCTO)) {
-        if (palabras.some((p) => t.includes(p))) return tipo;
+    for (const slug of ORDEN_DETECCION_CATEGORIA) {
+        const palabras = TIPOS_PRODUCTO[slug];
+        if (palabras.some((p) => t.includes(normalizarTexto(p)))) return slug;
     }
     return null;
 }
@@ -367,7 +406,7 @@ async function ejecutarAccion(id, etiquetaUsuario) {
         case 'coleccion':
             limpiarFiltroProductos();
             irASeccion('productos');
-            await agregarMensajeBot('Te llevo a la colección. Pulsa Añadir en lo que te guste o dime qué buscas (bolsas, mochilas, carteras…).');
+            await agregarMensajeBot('Te llevo a la colección. Pulsa Añadir en lo que te guste o dime: crossbody, combo mochila y lonchera, o combo carteras.');
             break;
         case 'envios':
             await agregarMensajeBot('Envíos a todo Guatemala en 3–5 días hábiles. ¿Quieres ver la colección?');
@@ -444,7 +483,7 @@ async function responderTextoLibre(texto) {
     const t = normalizarTexto(original);
 
     if (coincide(t, 'hola', 'buenas', 'buenos dias', 'hey')) {
-        await agregarMensajeBot('¡Hola! Soy el asistente de Veca. ¿Buscas bolsas, mochilas, carteras u otro accesorio?');
+        await agregarMensajeBot('¡Hola! Soy el asistente de Veca. Tenemos Crossbody, Combo mochila y lonchera, y Combo carteras. ¿Cuál te interesa?');
         mostrarOpciones(MENU_OPCIONES);
         return;
     }
@@ -464,7 +503,7 @@ async function responderTextoLibre(texto) {
     if (tipoProducto) {
         const n = filtrarProductos(tipoProducto);
         await agregarMensajeBot(
-            `Encontré ${n} modelo${n === 1 ? '' : 's'} de ${tipoProducto} en la página — están resaltados. Toca «Añadir» o dime si quieres ver otra categoría.`
+            `Encontré ${n} modelo${n === 1 ? '' : 's'} de ${labelCategoria(tipoProducto)} — están resaltados. Toca «Añadir» o dime si quieres ver otra categoría.`
         );
         mostrarOpcionesSiguiente('filtro');
         return;
@@ -476,7 +515,7 @@ async function responderTextoLibre(texto) {
         if (detectado) {
             const n = filtrarProductos(detectado);
             await agregarMensajeBot(
-                `Encontré ${n} modelo${n === 1 ? '' : 's'} de ${detectado} en la página — están resaltados. Toca «Añadir» o dime si quieres ver otra categoría.`
+                `Encontré ${n} modelo${n === 1 ? '' : 's'} de ${labelCategoria(detectado)} — están resaltados. Toca «Añadir» o dime si quieres ver otra categoría.`
             );
             mostrarOpcionesSiguiente('filtro');
             return;
@@ -489,7 +528,7 @@ async function responderTextoLibre(texto) {
     }
 
     if (coincide(t, 'talla', 'tallas', 'blusa', 'blusas', 'ropa', 'prenda', 'prendas', 'sudadera', 'camisa')) {
-        await agregarMensajeBot('En Veca solo vendemos accesorios: bolsos, mochilas, carteras y similares. ¿Te muestro la colección?');
+        await agregarMensajeBot('En Veca vendemos Crossbody, Combo mochila y lonchera, y Combo carteras. ¿Te muestro la colección?');
         mostrarOpciones(MENU_OPCIONES);
         return;
     }
@@ -538,7 +577,7 @@ async function responderTextoLibre(texto) {
     }
 
     await agregarMensajeBot(
-        'No estoy seguro de qué buscas. Prueba: «quiero ver bolsas», «ofertas», «contacto» o «ver mi bolsa».'
+        'No estoy seguro de qué buscas. Prueba: «crossbody», «combo carteras», «ofertas» o «contacto».'
     );
     mostrarOpciones(MENU_OPCIONES);
 }

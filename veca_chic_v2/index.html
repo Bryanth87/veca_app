@@ -91,14 +91,12 @@
     <section id="categorias" class="py-8 px-6 md:px-16">
         <div class="max-w-4xl mx-auto">
             <h2 class="text-center text-lg md:text-xl font-bold text-corinto-900 mb-1">Categorías</h2>
-            <p class="text-center text-slate-500 text-xs mb-5">Filtra por tipo de accesorio</p>
-            <div id="filtro-categorias" class="flex flex-wrap justify-center gap-2">
+            <p class="text-center text-slate-500 text-xs mb-5">Elige una línea de producto</p>
+            <div id="filtro-categorias" class="flex flex-wrap justify-center gap-2 max-w-2xl mx-auto">
                 <button type="button" data-categoria="todos" class="cat-btn cat-btn-active">Todos</button>
-                <button type="button" data-categoria="bolso" class="cat-btn">Bolsas</button>
-                <button type="button" data-categoria="mochila" class="cat-btn">Mochilas</button>
-                <button type="button" data-categoria="cartera" class="cat-btn">Carteras</button>
-                <button type="button" data-categoria="bandolera" class="cat-btn">Bandoleras</button>
-                <button type="button" data-categoria="rinonera" class="cat-btn">Riñoneras</button>
+                <button type="button" data-categoria="crossbody" class="cat-btn">Crossbody</button>
+                <button type="button" data-categoria="combo-mochila" class="cat-btn">Combo mochila y lonchera</button>
+                <button type="button" data-categoria="combo-carteras" class="cat-btn">Combo carteras</button>
             </div>
         </div>
     </section>
@@ -113,7 +111,7 @@
         <div class="max-w-4xl mx-auto border-l-4 border-corinto-200 pl-8">
             <h3 class="text-4xl font-bold mb-6 italic">Estilo & Calidad</h3>
             <p class="text-corinto-100 text-lg leading-relaxed">
-                En Veca encontrarás accesorios pensados para el día a día: mochilas, bolsos, carteras y más,
+                En Veca encontrarás crossbody y combos de mochila con lonchera o carteras,
                 con materiales duraderos y un diseño que combina elegancia con comodidad.
             </p>
         </div>
@@ -127,7 +125,7 @@
             <div class="bg-corinto-900 p-4 text-white font-bold text-sm shrink-0">Asistente Veca</div>
             <div id="chat-messages" class="p-4 flex-1 min-h-48 max-h-64 overflow-y-auto text-sm space-y-3 bg-slate-50">
                 <div class="chat-bubble-bot bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-                    ¡Hola! Puedes escribir lo que buscas — por ejemplo <em>«quiero ver bolsas»</em> — o usar los accesos rápidos.
+                    ¡Hola! Puedes escribir lo que buscas — por ejemplo <em>«quiero ver crossbody»</em> o <em>«combo carteras»</em> — o usar los accesos rápidos.
                 </div>
             </div>
             <div id="opciones-chat" class="grid gap-2 px-4 pb-2 shrink-0"></div>
@@ -147,7 +145,7 @@
         </div>
     </div>
 
-    <!-- Panel bolsa / checkout -->
+    <!-- Panel bolsa / checkout brooooo -->
     <div id="overlay-carrito" class="fixed inset-0 z-[60] hidden flex justify-end" aria-hidden="true">
         <button type="button" id="backdrop-carrito" class="absolute inset-0 bg-slate-900/50 backdrop-blur-[2px]" aria-label="Cerrar bolsa"></button>
         <aside class="relative z-10 flex h-full w-full max-w-md shrink-0 flex-col bg-white shadow-2xl" role="dialog" aria-labelledby="titulo-carrito">
@@ -172,41 +170,33 @@
         </aside>
     </div>
 
-    <section id="contacto" class="py-8 px-6 bg-corinto-50/80 border-t border-corinto-100">
-        <div class="max-w-2xl mx-auto">
-            <h3 class="text-center text-base font-bold text-corinto-900 mb-4">Contacto</h3>
-            <ul class="contacto-grid grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm text-slate-600">
-                <li class="flex flex-col sm:items-end sm:text-right">
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400">Teléfono</span>
-                    <a href="tel:+50255123847" class="font-medium text-corinto-800 hover:underline">+502 5512 3847</a>
+    <section id="contacto" class="contacto-veca border-t-4 border-corinto-900 bg-corinto-50 px-4 py-12 sm:px-6 sm:py-20">
+        <div class="mx-auto max-w-3xl text-center">
+            <p class="mb-2 text-[10px] font-bold uppercase tracking-[0.25em] text-corinto-600 sm:text-xs sm:tracking-[0.3em]">Contáctanos</p>
+            <h3 class="mb-8 text-2xl font-black italic text-corinto-900 sm:mb-10 sm:text-3xl md:text-4xl">¿Te ayudamos con tu pedido?</h3>
+            <ul class="contacto-lista space-y-5 text-slate-700 sm:space-y-6">
+                <li>
+                    <span class="mb-1 block text-[10px] uppercase tracking-widest text-slate-400 sm:text-xs">Teléfono</span>
+                    <a href="tel:+50255123847" class="text-base font-semibold text-corinto-900 hover:underline sm:text-lg">+502 5512 3847</a>
                 </li>
-                <li class="flex flex-col">
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400">Facebook</span>
-                    <a href="https://www.facebook.com/VECA" target="_blank" rel="noopener noreferrer" class="font-medium text-corinto-800 hover:underline">VECA</a>
+                <li>
+                    <span class="mb-1 block text-[10px] uppercase tracking-widest text-slate-400 sm:text-xs">Facebook</span>
+                    <a href="https://www.facebook.com/VECA" target="_blank" rel="noopener noreferrer" class="text-base font-semibold text-corinto-900 hover:underline sm:text-lg">VECA</a>
                 </li>
-                <li class="flex flex-col sm:items-end sm:text-right">
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400">Instagram</span>
-                    <a href="https://www.instagram.com/veca.__/" target="_blank" rel="noopener noreferrer" class="font-medium text-corinto-800 hover:underline">veca.__</a>
+                <li>
+                    <span class="mb-1 block text-[10px] uppercase tracking-widest text-slate-400 sm:text-xs">Instagram</span>
+                    <a href="https://www.instagram.com/veca.__/" target="_blank" rel="noopener noreferrer" class="text-base font-semibold text-corinto-900 hover:underline sm:text-lg">veca.__</a>
                 </li>
-                <li class="flex flex-col">
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400">Correo</span>
-                    <a href="mailto:vecaorg06@gmail.com" class="font-medium text-corinto-800 hover:underline break-all">vecaorg06@gmail.com</a>
+                <li>
+                    <span class="mb-1 block text-[10px] uppercase tracking-widest text-slate-400 sm:text-xs">Correo</span>
+                    <a href="mailto:vecaorg06@gmail.com" class="inline-block max-w-full break-words text-base font-semibold text-corinto-900 hover:underline sm:text-lg">vecaorg06@gmail.com</a>
                 </li>
             </ul>
         </div>
     </section>
 
-    <footer class="site-footer border-t border-corinto-100 bg-white px-6 py-5">
-        <div class="max-w-4xl mx-auto flex flex-col items-center gap-2 text-center sm:flex-row sm:justify-between sm:text-left">
-            <p class="text-xs text-slate-500">© Veca — Moda que amarás</p>
-            <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] text-slate-400">
-                <a href="tel:+50255123847" class="hover:text-corinto-700">+502 5512 3847</a>
-                <span aria-hidden="true">·</span>
-                <a href="https://www.facebook.com/VECA" target="_blank" rel="noopener noreferrer" class="hover:text-corinto-700">VECA</a>
-                <span aria-hidden="true">·</span>
-                <a href="https://www.instagram.com/veca.__/" target="_blank" rel="noopener noreferrer" class="hover:text-corinto-700">veca.__</a>
-            </div>
-        </div>
+    <footer class="footer-veca border-t border-corinto-100 bg-white px-4 py-8 text-center text-slate-400 sm:py-10">
+        <p class="text-[11px] sm:text-xs">© Veca — Moda que amarás</p>
     </footer>
 
     <script src="script.js"></script>
