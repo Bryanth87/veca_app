@@ -1,6 +1,14 @@
 const categorias = ["Nueva temporada", "Clásicos", "Accesorios", "Casual", "Elegante"];
 const items = ["Mochila", "Bolso", "Cartera", "Bandolera", "Rinonera"];
 
+function normalizarTexto(texto) {
+    return texto
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/\p{M}/gu, '')
+        .trim();
+}
+
 // Una imagen por casilla (24): bols → comb → cross
 const imagenesProductos = [
     ...Array.from({ length: 11 }, (_, k) => `bols_${k + 1}.jpg`),
@@ -179,6 +187,9 @@ gsap.registerPlugin(ScrollTrigger);
 gsap.from("#hero-title", { duration: 1.2, y: 100, opacity: 0, ease: "expo.out" });
 gsap.from("#hero-p", { duration: 1, opacity: 0, delay: 0.5 });
 
+gsap.from("#categorias h2", { duration: 0.6, y: 16, opacity: 0, scrollTrigger: { trigger: "#categorias", start: "top 90%" } });
+gsap.from(".cat-btn", { duration: 0.4, y: 8, opacity: 0, stagger: 0.04, scrollTrigger: { trigger: "#filtro-categorias", start: "top 92%" } });
+
 gsap.to(".product-card", {
     opacity: 1,
     y: 0,
@@ -205,10 +216,21 @@ const TIPOS_PRODUCTO = {
     rinonera: ['rinonera', 'riñonera', 'riñoneras', 'cinturon', 'cinturón'],
 };
 
+const CONTACTO_VECA = {
+    telefono: '+502 5512 3847',
+    telHref: 'tel:+50255123847',
+    facebook: 'VECA',
+    fbHref: 'https://www.facebook.com/VECA',
+    instagram: 'veca.__',
+    igHref: 'https://www.instagram.com/veca.__/',
+    email: 'vecaorg06@gmail.com',
+};
+
 const MENU_OPCIONES = [
     { id: 'coleccion', label: 'Ver colección' },
     { id: 'envios', label: 'Envíos' },
     { id: 'ofertas', label: 'Ofertas' },
+    { id: 'contacto', label: 'Contacto' },
     { id: 'carrito', label: 'Ver mi bolsa' },
 ];
 
@@ -245,6 +267,35 @@ function agregarMensajeBot(texto, delay = 350) {
     });
 }
 
+function htmlMensajeContacto() {
+    const c = CONTACTO_VECA;
+    return `
+        <p class="font-semibold text-corinto-900 mb-1.5">Datos de contacto</p>
+        <span class="chat-contacto-line">📞 <a href="${c.telHref}">${c.telefono}</a></span>
+        <span class="chat-contacto-line">Facebook: <a href="${c.fbHref}" target="_blank" rel="noopener noreferrer">${c.facebook}</a></span>
+        <span class="chat-contacto-line">Instagram: <a href="${c.igHref}" target="_blank" rel="noopener noreferrer">${c.instagram}</a></span>
+        <span class="chat-contacto-line">✉️ <a href="mailto:${c.email}">${c.email}</a></span>
+    `;
+}
+
+function agregarMensajeBotHtml(html, delay = 350) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const el = document.createElement('div');
+            el.className = 'chat-bubble-bot bg-white p-3 rounded-lg border border-slate-200 shadow-sm text-xs';
+            el.innerHTML = html;
+            chatMessages?.appendChild(el);
+            scrollChat();
+            resolve();
+        }, delay);
+    });
+}
+
+async function mostrarContactoEnChat() {
+    await agregarMensajeBotHtml(htmlMensajeContacto());
+    irASeccion('contacto');
+}
+
 function mostrarOpciones(opciones) {
     if (!chatOpts) return;
     chatOpts.innerHTML = '';
@@ -262,14 +313,25 @@ function irASeccion(id) {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function limpiarFiltroProductos() {
+function setCategoriaActiva(categoria) {
+    document.querySelectorAll('[data-categoria]').forEach((btn) => {
+        btn.classList.toggle('cat-btn-active', btn.dataset.categoria === categoria);
+    });
+}
+
+function quitarEstilosFiltro() {
     document.querySelectorAll('.product-card').forEach((card) => {
         card.classList.remove('chat-hidden', 'chat-highlight');
     });
 }
 
+function limpiarFiltroProductos() {
+    quitarEstilosFiltro();
+    setCategoriaActiva('todos');
+}
+
 function filtrarProductos(tipo) {
-    limpiarFiltroProductos();
+    quitarEstilosFiltro();
     const cards = [...document.querySelectorAll('.product-card')];
     const visibles = cards.filter((c) => c.dataset.tipo === tipo);
     if (visibles.length === 0) return 0;
@@ -278,17 +340,10 @@ function filtrarProductos(tipo) {
         if (c.dataset.tipo === tipo) c.classList.add('chat-highlight');
         else c.classList.add('chat-hidden');
     });
+    setCategoriaActiva(tipo);
     irASeccion('productos');
     visibles[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
     return visibles.length;
-}
-
-function normalizarTexto(texto) {
-    return texto
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/\p{M}/gu, '')
-        .trim();
 }
 
 function detectarTipoProducto(texto) {
@@ -337,6 +392,9 @@ async function ejecutarAccion(id, etiquetaUsuario) {
             irASeccion('productos');
             await agregarMensajeBot('Mostré toda la colección otra vez.');
             break;
+        case 'contacto':
+            await mostrarContactoEnChat();
+            break;
         case 'menu':
             await agregarMensajeBot('¿En qué más te ayudo?');
             break;
@@ -362,10 +420,11 @@ function mostrarOpcionesSiguiente(ultimaAccion) {
         return;
     }
 
-    if (ultimaAccion === 'ofertas') {
+    if (ultimaAccion === 'ofertas' || ultimaAccion === 'contacto') {
         mostrarOpciones([
             { id: 'coleccion', label: 'Ir a la colección' },
             { id: 'carrito', label: 'Ver mi bolsa' },
+            { id: 'contacto', label: 'Contacto' },
             { id: 'menu', label: 'Menú principal' },
         ]);
         return;
@@ -457,8 +516,29 @@ async function responderTextoLibre(texto) {
         return;
     }
 
+    if (
+        coincide(
+            t,
+            'contacto',
+            'contactar',
+            'telefono',
+            'celular',
+            'whatsapp',
+            'llamar',
+            'facebook',
+            'instagram',
+            'correo',
+            'email',
+            'gmail',
+            'redes'
+        )
+    ) {
+        await ejecutarAccion('contacto', null);
+        return;
+    }
+
     await agregarMensajeBot(
-        'No estoy seguro de qué buscas. Prueba: «quiero ver bolsas», «mochilas», «ofertas» o «ver mi bolsa».'
+        'No estoy seguro de qué buscas. Prueba: «quiero ver bolsas», «ofertas», «contacto» o «ver mi bolsa».'
     );
     mostrarOpciones(MENU_OPCIONES);
 }
@@ -475,3 +555,32 @@ chatForm?.addEventListener('submit', (e) => {
 });
 
 mostrarOpciones(MENU_OPCIONES);
+
+const filtroCategorias = document.getElementById('filtro-categorias');
+filtroCategorias?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-categoria]');
+    if (!btn) return;
+    const cat = btn.dataset.categoria;
+    if (cat === 'todos') {
+        limpiarFiltroProductos();
+        irASeccion('productos');
+    } else {
+        filtrarProductos(cat);
+    }
+});
+
+const btnMenu = document.getElementById('btn-menu');
+const navMobile = document.getElementById('nav-mobile');
+
+btnMenu?.addEventListener('click', () => {
+    navMobile?.classList.toggle('hidden');
+    const abierto = navMobile && !navMobile.classList.contains('hidden');
+    btnMenu.setAttribute('aria-expanded', String(abierto));
+});
+
+document.querySelectorAll('.nav-mobile-link, #nav-mobile a[href^="tel"], #nav-mobile a[href^="mailto"], #nav-mobile a[target]').forEach((enlace) => {
+    enlace.addEventListener('click', () => {
+        navMobile?.classList.add('hidden');
+        btnMenu?.setAttribute('aria-expanded', 'false');
+    });
+});

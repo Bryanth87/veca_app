@@ -44,3 +44,57 @@
 .product-card.chat-hidden {
     display: none;
 }
+
+.cat-btn {
+    padding: 0.375rem 0.875rem;
+    border-radius: 9999px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #334155;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.cat-btn:hover {
+    border-color: var(--corinto-light);
+    background: var(--corinto-muted);
+    color: var(--corinto-dark);
+}
+
+.cat-btn-active {
+    background: var(--corinto);
+    border-color: var(--corinto);
+    color: white;
+    box-shadow: 0 2px 8px rgba(107, 27, 42, 0.2);
+}
+
+.cat-btn-active:hover {
+    background: var(--corinto-dark);
+    border-color: var(--corinto-dark);
+    color: white;
+}
+
+.nav-mobile:not(.hidden) {
+    display: block;
+}
+
+.site-footer a {
+    transition: color 0.2s;
+}
+
+.chat-bubble-bot a {
+    color: var(--corinto);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.chat-bubble-bot a:hover {
+    color: var(--corinto-dark);
+}
+
+.chat-contacto-line {
+    display: block;
+    line-height: 1.45;
+}

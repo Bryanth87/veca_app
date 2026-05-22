@@ -33,16 +33,49 @@
 </head>
 <body class="bg-slate-50 font-sans text-slate-900">
 
-    <nav class="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-corinto-100 p-4 flex justify-between items-center">
-        <a href="#" class="flex items-center gap-3">
-            <img src="assets/logo.png" alt="Veca" class="h-10 w-10 rounded-lg object-cover" />
-            <span class="text-2xl font-bold text-corinto tracking-tight">Veca</span>
-        </a>
-        <div class="space-x-8 hidden md:flex font-medium text-sm uppercase tracking-widest">
-            <a href="#productos" class="hover:text-corinto-500 transition">Colecciones</a>
-            <a href="#concepto" class="hover:text-corinto-500 transition">El Concepto</a>
+    <nav class="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-corinto-100 px-4 py-3">
+        <div class="mx-auto flex max-w-7xl items-center justify-between gap-3">
+            <a href="#" class="flex shrink-0 items-center gap-3">
+                <img src="assets/logo.png" alt="Veca" class="h-10 w-10 rounded-lg object-cover" />
+                <span class="text-xl font-bold text-corinto tracking-tight sm:text-2xl">Veca</span>
+            </a>
+
+            <div class="hidden items-center gap-6 font-medium text-xs uppercase tracking-widest lg:flex">
+                <a href="#categorias" class="hover:text-corinto-500 transition">Categorías</a>
+                <a href="#productos" class="hover:text-corinto-500 transition">Colección</a>
+                <a href="#concepto" class="hover:text-corinto-500 transition">Concepto</a>
+                <a href="#contacto" class="hover:text-corinto-500 transition">Contacto</a>
+            </div>
+
+            <div class="hidden items-center gap-3 text-xs text-slate-600 md:flex lg:gap-4">
+                <a href="tel:+50255123847" class="nav-contacto hover:text-corinto-700 whitespace-nowrap" title="WhatsApp o llamada">+502 5512 3847</a>
+                <span class="text-corinto-200 hidden lg:inline">|</span>
+                <a href="https://www.facebook.com/VECA" target="_blank" rel="noopener noreferrer" class="nav-contacto hover:text-corinto-700 hidden lg:inline">Facebook</a>
+                <a href="https://www.instagram.com/veca.__/" target="_blank" rel="noopener noreferrer" class="nav-contacto hover:text-corinto-700 hidden lg:inline">Instagram</a>
+                <a href="mailto:vecaorg06@gmail.com" class="nav-contacto hover:text-corinto-700 hidden xl:inline truncate max-w-[10rem]" title="vecaorg06@gmail.com">Email</a>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a href="#contacto" class="rounded-full border border-corinto-100 px-3 py-1.5 text-xs font-semibold text-corinto-700 hover:bg-corinto-50 md:hidden">Contacto</a>
+                <button type="button" id="btn-menu" class="rounded-full border border-corinto-100 p-2 text-corinto-700 hover:bg-corinto-50 lg:hidden" aria-label="Abrir menú" aria-expanded="false">☰</button>
+                <button type="button" id="btn-carrito" class="bg-corinto-900 text-white px-4 py-2 rounded-full text-sm hover:bg-corinto transition shadow-lg sm:px-5">Bolsa (0)</button>
+            </div>
         </div>
-        <button type="button" id="btn-carrito" class="bg-corinto-900 text-white px-5 py-2 rounded-full text-sm hover:bg-corinto transition shadow-lg">Bolsa (0)</button>
+
+        <div id="nav-mobile" class="nav-mobile hidden border-t border-corinto-100 bg-white/95 px-4 py-4 lg:hidden">
+            <div class="flex flex-col gap-3 text-sm font-medium uppercase tracking-widest">
+                <a href="#categorias" class="nav-mobile-link">Categorías</a>
+                <a href="#productos" class="nav-mobile-link">Colección</a>
+                <a href="#concepto" class="nav-mobile-link">Concepto</a>
+                <a href="#contacto" class="nav-mobile-link">Contacto</a>
+            </div>
+            <div class="mt-4 space-y-2 border-t border-corinto-100 pt-4 text-sm text-slate-600">
+                <a href="tel:+50255123847" class="block hover:text-corinto-700">+502 5512 3847</a>
+                <a href="https://www.facebook.com/VECA" target="_blank" rel="noopener noreferrer" class="block hover:text-corinto-700">Facebook: VECA</a>
+                <a href="https://www.instagram.com/veca.__/" target="_blank" rel="noopener noreferrer" class="block hover:text-corinto-700">Instagram: veca.__</a>
+                <a href="mailto:vecaorg06@gmail.com" class="block hover:text-corinto-700">vecaorg06@gmail.com</a>
+            </div>
+        </div>
     </nav>
 
     <header class="pt-40 pb-20 px-6 text-center">
@@ -55,8 +88,24 @@
         </div>
     </header>
 
-    <section id="productos" class="py-20 px-6 md:px-20">
-        <div id="grid-productos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+    <section id="categorias" class="py-8 px-6 md:px-16">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-center text-lg md:text-xl font-bold text-corinto-900 mb-1">Categorías</h2>
+            <p class="text-center text-slate-500 text-xs mb-5">Filtra por tipo de accesorio</p>
+            <div id="filtro-categorias" class="flex flex-wrap justify-center gap-2">
+                <button type="button" data-categoria="todos" class="cat-btn cat-btn-active">Todos</button>
+                <button type="button" data-categoria="bolso" class="cat-btn">Bolsas</button>
+                <button type="button" data-categoria="mochila" class="cat-btn">Mochilas</button>
+                <button type="button" data-categoria="cartera" class="cat-btn">Carteras</button>
+                <button type="button" data-categoria="bandolera" class="cat-btn">Bandoleras</button>
+                <button type="button" data-categoria="rinonera" class="cat-btn">Riñoneras</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="productos" class="pb-16 px-6 md:px-20">
+        <h3 class="text-center text-lg font-bold text-slate-800 mb-8">Colección</h3>
+        <div id="grid-productos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
         </div>
     </section>
 
@@ -123,8 +172,41 @@
         </aside>
     </div>
 
-    <footer class="py-10 text-center text-slate-400 text-xs border-t border-corinto-100">
-        © Veca — Moda que amarás
+    <section id="contacto" class="py-8 px-6 bg-corinto-50/80 border-t border-corinto-100">
+        <div class="max-w-2xl mx-auto">
+            <h3 class="text-center text-base font-bold text-corinto-900 mb-4">Contacto</h3>
+            <ul class="contacto-grid grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm text-slate-600">
+                <li class="flex flex-col sm:items-end sm:text-right">
+                    <span class="text-[10px] uppercase tracking-wider text-slate-400">Teléfono</span>
+                    <a href="tel:+50255123847" class="font-medium text-corinto-800 hover:underline">+502 5512 3847</a>
+                </li>
+                <li class="flex flex-col">
+                    <span class="text-[10px] uppercase tracking-wider text-slate-400">Facebook</span>
+                    <a href="https://www.facebook.com/VECA" target="_blank" rel="noopener noreferrer" class="font-medium text-corinto-800 hover:underline">VECA</a>
+                </li>
+                <li class="flex flex-col sm:items-end sm:text-right">
+                    <span class="text-[10px] uppercase tracking-wider text-slate-400">Instagram</span>
+                    <a href="https://www.instagram.com/veca.__/" target="_blank" rel="noopener noreferrer" class="font-medium text-corinto-800 hover:underline">veca.__</a>
+                </li>
+                <li class="flex flex-col">
+                    <span class="text-[10px] uppercase tracking-wider text-slate-400">Correo</span>
+                    <a href="mailto:vecaorg06@gmail.com" class="font-medium text-corinto-800 hover:underline break-all">vecaorg06@gmail.com</a>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <footer class="site-footer border-t border-corinto-100 bg-white px-6 py-5">
+        <div class="max-w-4xl mx-auto flex flex-col items-center gap-2 text-center sm:flex-row sm:justify-between sm:text-left">
+            <p class="text-xs text-slate-500">© Veca — Moda que amarás</p>
+            <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] text-slate-400">
+                <a href="tel:+50255123847" class="hover:text-corinto-700">+502 5512 3847</a>
+                <span aria-hidden="true">·</span>
+                <a href="https://www.facebook.com/VECA" target="_blank" rel="noopener noreferrer" class="hover:text-corinto-700">VECA</a>
+                <span aria-hidden="true">·</span>
+                <a href="https://www.instagram.com/veca.__/" target="_blank" rel="noopener noreferrer" class="hover:text-corinto-700">veca.__</a>
+            </div>
+        </div>
     </footer>
 
     <script src="script.js"></script>
