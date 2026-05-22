@@ -260,7 +260,7 @@ const CONTACTO_VECA = {
     facebook: 'VECA',
     fbHref: 'https://www.facebook.com/VECA',
     instagram: 'veca.__',
-    igHref: 'https://www.instagram.com/veca.__/',
+    igHref: 'https://www.instagram.com/veca__.__/',
     email: 'vecaorg06@gmail.com',
 };
 
