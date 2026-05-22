@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Veca | Moda que amarás</title>
+    <link rel="icon" href="assets/logo.png" type="image/png" />
+    <link rel="apple-touch-icon" href="assets/logo.png" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -62,7 +64,7 @@
         <div class="max-w-4xl mx-auto border-l-4 border-corinto-200 pl-8">
             <h3 class="text-4xl font-bold mb-6 italic">Estilo & Calidad</h3>
             <p class="text-corinto-100 text-lg leading-relaxed">
-                En Veca encontrarás piezas pensadas para el día a día: mochilas, blusas, bolsos y más,
+                En Veca encontrarás accesorios pensados para el día a día: mochilas, bolsos, carteras y más,
                 con materiales duraderos y un diseño que combina elegancia con comodidad.
             </p>
         </div>
@@ -72,18 +74,27 @@
         <button id="btn-chat" class="bg-corinto text-white w-16 h-16 rounded-full shadow-2xl flex items-center justify-center text-2xl hover:scale-110 transition active:scale-90">
             💬
         </button>
-        <div id="window-chat" class="hidden absolute bottom-20 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden">
-            <div class="bg-corinto-900 p-4 text-white font-bold text-sm">Asistente Veca</div>
-            <div id="chat-box" class="p-4 h-72 overflow-y-auto text-sm space-y-4 bg-slate-50">
-                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-                    ¡Hola! ¿En qué puedo ayudarte hoy?
-                </div>
-                <div id="opciones-chat" class="grid gap-2">
-                    <button onclick="pasoChat(1)" class="btn-op">Ver colección</button>
-                    <button onclick="pasoChat(2)" class="btn-op">Tallas y envíos</button>
-                    <button onclick="pasoChat(3)" class="btn-op">Ofertas</button>
+        <div id="window-chat" class="hidden absolute bottom-20 right-0 w-80 flex flex-col bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden max-h-[min(32rem,85vh)]">
+            <div class="bg-corinto-900 p-4 text-white font-bold text-sm shrink-0">Asistente Veca</div>
+            <div id="chat-messages" class="p-4 flex-1 min-h-48 max-h-64 overflow-y-auto text-sm space-y-3 bg-slate-50">
+                <div class="chat-bubble-bot bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                    ¡Hola! Puedes escribir lo que buscas — por ejemplo <em>«quiero ver bolsas»</em> — o usar los accesos rápidos.
                 </div>
             </div>
+            <div id="opciones-chat" class="grid gap-2 px-4 pb-2 shrink-0"></div>
+            <form id="chat-form" class="flex gap-2 border-t border-slate-100 p-3 bg-white shrink-0">
+                <input
+                    type="text"
+                    id="chat-input"
+                    class="chat-input flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-corinto focus:ring-1 focus:ring-corinto"
+                    placeholder="Escribe tu consulta…"
+                    autocomplete="off"
+                    maxlength="200"
+                />
+                <button type="submit" id="chat-enviar" class="shrink-0 rounded-lg bg-corinto-900 px-3 py-2 text-xs font-bold uppercase tracking-wide text-white hover:bg-corinto transition">
+                    Enviar
+                </button>
+            </form>
         </div>
     </div>
 

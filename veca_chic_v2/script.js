@@ -1,5 +1,5 @@
 const categorias = ["Nueva temporada", "Clásicos", "Accesorios", "Casual", "Elegante"];
-const items = ["Mochila", "Blusa", "Bolso", "Cartera", "Sudadera"];
+const items = ["Mochila", "Bolso", "Cartera", "Bandolera", "Rinonera"];
 
 // Una imagen por casilla (24): bols → comb → cross
 const imagenesProductos = [
@@ -143,6 +143,7 @@ for (let i = 1; i <= 24; i++) {
     const card = document.createElement('div');
     card.className = "product-card bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-lg transition-all group";
     card.dataset.productId = String(i);
+    card.dataset.tipo = normalizarTexto(item);
 
     card.innerHTML = `
         <div class="h-60 rounded-lg mb-4 flex items-center justify-center overflow-hidden bg-corinto-50">
@@ -191,33 +192,286 @@ gsap.to(".product-card", {
 
 const btnChat = document.getElementById('btn-chat');
 const winChat = document.getElementById('window-chat');
-const box = document.getElementById('chat-box');
-const opts = document.getElementById('opciones-chat');
+const chatMessages = document.getElementById('chat-messages');
+const chatOpts = document.getElementById('opciones-chat');
+const chatForm = document.getElementById('chat-form');
+const chatInput = document.getElementById('chat-input');
 
-btnChat.onclick = () => winChat.classList.toggle('hidden');
+const TIPOS_PRODUCTO = {
+    mochila: ['mochila', 'mochilas'],
+    bolso: ['bolso', 'bolsos', 'bolsa', 'bolsas'],
+    cartera: ['cartera', 'carteras', 'monedero'],
+    bandolera: ['bandolera', 'bandoleras'],
+    rinonera: ['rinonera', 'riñonera', 'riñoneras', 'cinturon', 'cinturón'],
+};
 
-function pasoChat(n) {
-    let resp = "";
-    let next = "";
+const MENU_OPCIONES = [
+    { id: 'coleccion', label: 'Ver colección' },
+    { id: 'envios', label: 'Envíos' },
+    { id: 'ofertas', label: 'Ofertas' },
+    { id: 'carrito', label: 'Ver mi bolsa' },
+];
 
-    if (n === 1) {
-        resp = "Tenemos blusas, mochilas y bolsos en la colección actual. ¿Te muestro los más vendidos?";
-        next = `<button onclick="pasoChat(0)" class="btn-op">Sí, ver modelos</button>
-                <button onclick="pasoChat(0)" class="btn-op">Regresar</button>`;
-    } else if (n === 2) {
-        resp = "Las tallas van de XS a XL. Envíos a todo el país en 3–5 días hábiles.";
-        next = `<button onclick="pasoChat(0)" class="btn-op">Ver guía de tallas</button>`;
-    } else if (n === 3) {
-        resp = "Esta semana hay 15% en accesorios. ¿Quieres el código de descuento?";
-        next = `<button onclick="pasoChat(0)" class="btn-op">Sí, por favor</button>`;
-    } else {
-        location.reload();
+btnChat.onclick = () => {
+    winChat.classList.toggle('hidden');
+    if (!winChat.classList.contains('hidden')) chatInput?.focus();
+};
+
+function scrollChat() {
+    if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function crearBurbuja(texto, esUsuario) {
+    const el = document.createElement('div');
+    el.className = esUsuario
+        ? 'chat-bubble-user bg-corinto text-white p-2.5 rounded-lg text-xs'
+        : 'chat-bubble-bot bg-white p-3 rounded-lg border border-slate-200 shadow-sm';
+    el.textContent = texto;
+    return el;
+}
+
+function agregarMensajeUsuario(texto) {
+    chatMessages?.appendChild(crearBurbuja(texto, true));
+    scrollChat();
+}
+
+function agregarMensajeBot(texto, delay = 350) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            chatMessages?.appendChild(crearBurbuja(texto, false));
+            scrollChat();
+            resolve();
+        }, delay);
+    });
+}
+
+function mostrarOpciones(opciones) {
+    if (!chatOpts) return;
+    chatOpts.innerHTML = '';
+    for (const op of opciones) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn-op';
+        btn.textContent = op.label;
+        btn.dataset.chatAction = op.id;
+        chatOpts.appendChild(btn);
+    }
+}
+
+function irASeccion(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function limpiarFiltroProductos() {
+    document.querySelectorAll('.product-card').forEach((card) => {
+        card.classList.remove('chat-hidden', 'chat-highlight');
+    });
+}
+
+function filtrarProductos(tipo) {
+    limpiarFiltroProductos();
+    const cards = [...document.querySelectorAll('.product-card')];
+    const visibles = cards.filter((c) => c.dataset.tipo === tipo);
+    if (visibles.length === 0) return 0;
+
+    cards.forEach((c) => {
+        if (c.dataset.tipo === tipo) c.classList.add('chat-highlight');
+        else c.classList.add('chat-hidden');
+    });
+    irASeccion('productos');
+    visibles[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return visibles.length;
+}
+
+function normalizarTexto(texto) {
+    return texto
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/\p{M}/gu, '')
+        .trim();
+}
+
+function detectarTipoProducto(texto) {
+    const t = normalizarTexto(texto);
+    for (const [tipo, palabras] of Object.entries(TIPOS_PRODUCTO)) {
+        if (palabras.some((p) => t.includes(p))) return tipo;
+    }
+    return null;
+}
+
+function coincide(texto, ...patrones) {
+    const t = normalizarTexto(texto);
+    return patrones.some((p) => t.includes(p));
+}
+
+async function ejecutarAccion(id, etiquetaUsuario) {
+    if (etiquetaUsuario) agregarMensajeUsuario(etiquetaUsuario);
+    chatOpts.innerHTML = '';
+
+    switch (id) {
+        case 'coleccion':
+            limpiarFiltroProductos();
+            irASeccion('productos');
+            await agregarMensajeBot('Te llevo a la colección. Pulsa Añadir en lo que te guste o dime qué buscas (bolsas, mochilas, carteras…).');
+            break;
+        case 'envios':
+            await agregarMensajeBot('Envíos a todo Guatemala en 3–5 días hábiles. ¿Quieres ver la colección?');
+            break;
+        case 'ofertas':
+            await agregarMensajeBot('Esta semana: 15% en accesorios con el código VECA15 al comprar.');
+            break;
+        case 'carrito':
+            abrirCarrito();
+            await agregarMensajeBot(
+                carrito.length > 0
+                    ? `Tu bolsa tiene ${carrito.reduce((s, p) => s + p.qty, 0)} artículo(s). Ya abrí el panel para que revises.`
+                    : 'Tu bolsa está vacía. Te muestro la colección para que elijas algo.'
+            );
+            if (carrito.length === 0) {
+                limpiarFiltroProductos();
+                irASeccion('productos');
+            }
+            break;
+        case 'ver-todo':
+            limpiarFiltroProductos();
+            irASeccion('productos');
+            await agregarMensajeBot('Mostré toda la colección otra vez.');
+            break;
+        case 'menu':
+            await agregarMensajeBot('¿En qué más te ayudo?');
+            break;
+        default:
+            await agregarMensajeBot('No entendí esa opción. Prueba con otra o escribe lo que buscas.');
     }
 
-    box.innerHTML += `<div class="bg-corinto text-white p-2 rounded-lg ml-10 text-right text-xs">Consulta opción ${n}</div>`;
-    setTimeout(() => {
-        box.innerHTML += `<div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">${resp}</div>`;
-        opts.innerHTML = next;
-        box.scrollTop = box.scrollHeight;
-    }, 400);
+    mostrarOpcionesSiguiente(id);
 }
+
+function mostrarOpcionesSiguiente(ultimaAccion) {
+    const base = [
+        { id: 'coleccion', label: 'Ver toda la colección' },
+        { id: 'menu', label: 'Menú principal' },
+    ];
+
+    if (ultimaAccion === 'filtro') {
+        mostrarOpciones([
+            { id: 'ver-todo', label: 'Ver todos los productos' },
+            { id: 'carrito', label: 'Ver mi bolsa' },
+            ...MENU_OPCIONES.filter((o) => o.id !== 'coleccion'),
+        ]);
+        return;
+    }
+
+    if (ultimaAccion === 'ofertas') {
+        mostrarOpciones([
+            { id: 'coleccion', label: 'Ir a la colección' },
+            { id: 'carrito', label: 'Ver mi bolsa' },
+            { id: 'menu', label: 'Menú principal' },
+        ]);
+        return;
+    }
+
+    mostrarOpciones([...MENU_OPCIONES, ...base.filter((b) => !MENU_OPCIONES.some((m) => m.id === b.id))]);
+}
+
+async function responderTextoLibre(texto) {
+    const original = texto.trim();
+    if (!original) return;
+
+    agregarMensajeUsuario(original);
+    chatOpts.innerHTML = '';
+    chatInput.value = '';
+
+    const t = normalizarTexto(original);
+
+    if (coincide(t, 'hola', 'buenas', 'buenos dias', 'hey')) {
+        await agregarMensajeBot('¡Hola! Soy el asistente de Veca. ¿Buscas bolsas, mochilas, carteras u otro accesorio?');
+        mostrarOpciones(MENU_OPCIONES);
+        return;
+    }
+
+    if (coincide(t, 'gracias', 'muchas gracias', 'perfecto', 'genial', 'ok listo')) {
+        await agregarMensajeBot('¡Con gusto! Si necesitas algo más, aquí estaré.');
+        mostrarOpciones(MENU_OPCIONES);
+        return;
+    }
+
+    if (coincide(t, 'menu', 'inicio', 'ayuda', 'opciones')) {
+        await ejecutarAccion('menu');
+        return;
+    }
+
+    const tipoProducto = detectarTipoProducto(t);
+    if (tipoProducto) {
+        const n = filtrarProductos(tipoProducto);
+        await agregarMensajeBot(
+            `Encontré ${n} modelo${n === 1 ? '' : 's'} de ${tipoProducto} en la página — están resaltados. Toca «Añadir» o dime si quieres ver otra categoría.`
+        );
+        mostrarOpcionesSiguiente('filtro');
+        return;
+    }
+
+    if (coincide(t, 'ver', 'mostrar', 'busco', 'quiero', 'necesito', 'dame')) {
+        const resto = t.replace(/^(quiero ver|quisiera ver|ver|mostrar|busco|quiero|necesito|dame)\s+/, '');
+        const detectado = detectarTipoProducto(resto);
+        if (detectado) {
+            const n = filtrarProductos(detectado);
+            await agregarMensajeBot(
+                `Encontré ${n} modelo${n === 1 ? '' : 's'} de ${detectado} en la página — están resaltados. Toca «Añadir» o dime si quieres ver otra categoría.`
+            );
+            mostrarOpcionesSiguiente('filtro');
+            return;
+        }
+    }
+
+    if (coincide(t, 'carrito', 'comprar', 'pagar', 'checkout', 'mi pedido', 'mi bolsa', 'ver bolsa', 'abrir bolsa', 'en la bolsa')) {
+        await ejecutarAccion('carrito', null);
+        return;
+    }
+
+    if (coincide(t, 'talla', 'tallas', 'blusa', 'blusas', 'ropa', 'prenda', 'prendas', 'sudadera', 'camisa')) {
+        await agregarMensajeBot('En Veca solo vendemos accesorios: bolsos, mochilas, carteras y similares. ¿Te muestro la colección?');
+        mostrarOpciones(MENU_OPCIONES);
+        return;
+    }
+
+    if (coincide(t, 'envio', 'envios', 'entrega', 'enviar')) {
+        await ejecutarAccion('envios', null);
+        return;
+    }
+
+    if (coincide(t, 'oferta', 'ofertas', 'descuento', 'promo', 'codigo', 'rebaja')) {
+        await ejecutarAccion('ofertas', null);
+        return;
+    }
+
+    if (coincide(t, 'coleccion', 'productos', 'catalogo', 'tienda', 'ver todo', 'accesorios')) {
+        await ejecutarAccion('coleccion', null);
+        return;
+    }
+
+    if (coincide(t, 'concepto', 'marca', 'quienes son', 'sobre veca')) {
+        irASeccion('concepto');
+        await agregarMensajeBot('Te muestro nuestra sección «Estilo & Calidad» con más sobre Veca.');
+        mostrarOpcionesSiguiente('concepto');
+        return;
+    }
+
+    await agregarMensajeBot(
+        'No estoy seguro de qué buscas. Prueba: «quiero ver bolsas», «mochilas», «ofertas» o «ver mi bolsa».'
+    );
+    mostrarOpciones(MENU_OPCIONES);
+}
+
+chatOpts?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-chat-action]');
+    if (!btn) return;
+    ejecutarAccion(btn.dataset.chatAction, btn.textContent);
+});
+
+chatForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    responderTextoLibre(chatInput?.value ?? '');
+});
+
+mostrarOpciones(MENU_OPCIONES);
